@@ -1,0 +1,9 @@
+flask
+python-dotenv
+pandas
+openpyxl
+plotly
+pdfplumber
+transformers
+torch
+sentencepiece

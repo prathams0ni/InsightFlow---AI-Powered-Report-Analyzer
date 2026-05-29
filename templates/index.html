@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Report Analyzer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <!-- Animated background orbs -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="nav-logo">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="3" width="7" height="7" rx="1.5" fill="url(#nl)"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.5" fill="url(#nl)" opacity="0.55"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5" fill="url(#nl)" opacity="0.55"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5" fill="url(#nl)"/>
+          <defs>
+            <linearGradient id="nl" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#7c3aed"/>
+              <stop offset="100%" stop-color="#06b6d4"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="brand-name">Smart Report <span class="grad-text">Analyzer</span></span>
+    </div>
+    <div class="nav-credit">Created by <strong class="accent-name">Pratham</strong></div>
+  </nav>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay hidden" id="loadingOverlay">
+    <div class="loading-card glass">
+      <div class="spinner-ring"></div>
+      <h3>Analyzing Your Report</h3>
+      <p class="loading-step" id="loadingStep">Uploading file…</p>
+      <div class="step-track">
+        <span class="step-dot active"></span>
+        <span class="step-dot"></span>
+        <span class="step-dot"></span>
+        <span class="step-dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <main class="main">
+
+    <!-- ── Hero / Upload ── -->
+    <section class="hero-section" id="heroSection">
+      <div class="hero-text">
+        <div class="badge">🤖 AI-Powered Analysis</div>
+        <h1>Turn Data Into <span class="grad-text">Insights</span></h1>
+        <p class="hero-sub">
+          Upload any CSV, Excel, or PDF and get instant EDA charts,
+          AI summaries, and intelligent Q&amp;A — all in seconds.
+        </p>
+      </div>
+
+      <div class="upload-card glass" id="uploadCard">
+        <div class="drop-zone" id="dropZone">
+          <div class="drop-icon-wrap">
+            <div class="drop-icon-bg"></div>
+            <svg class="drop-svg" width="36" height="36" viewBox="0 0 24 24" fill="none">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="url(#us)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="17 8 12 3 7 8" stroke="url(#us)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="12" y1="3" x2="12" y2="15" stroke="url(#us)" stroke-width="2" stroke-linecap="round"/>
+              <defs>
+                <linearGradient id="us" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#7c3aed"/>
+                  <stop offset="100%" stop-color="#06b6d4"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h3 class="drop-title">Drop your file here</h3>
+          <p class="drop-sub">or <button class="browse-btn" id="browseBtn">browse files</button></p>
+          <div class="format-chips">
+            <span class="chip">CSV</span>
+            <span class="chip">XLSX</span>
+            <span class="chip">PDF</span>
+          </div>
+          <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.pdf" hidden />
+        </div>
+
+        <!-- File selected state -->
+        <div class="file-selected hidden" id="fileSelected">
+          <div class="file-chip-card">
+            <div class="file-chip-icon" id="fileTypeIcon">📄</div>
+            <div class="file-chip-info">
+              <span class="file-chip-name" id="fileName">filename.csv</span>
+              <span class="file-chip-size" id="fileSize">0 KB</span>
+            </div>
+            <button class="file-remove" id="removeFile" title="Remove">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button class="analyze-btn" id="analyzeBtn" disabled>
+          <span>Analyze with AI</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ── Results ── -->
+    <section class="results-section hidden" id="resultsSection">
+
+      <!-- Stats -->
+      <div class="stats-bar" id="statsBar"></div>
+
+      <!-- Data Preview -->
+      <div class="result-card glass slide-up" id="previewCard">
+        <div class="card-header">
+          <div class="card-title"><span class="ci">🔍</span><h2>Data Preview</h2></div>
+        </div>
+        <div class="card-body table-body">
+          <div class="table-wrapper" id="previewContent"></div>
+        </div>
+      </div>
+
+      <!-- EDA Charts -->
+      <div class="result-card glass slide-up" id="chartsCard">
+        <div class="card-header">
+          <div class="card-title"><span class="ci">📈</span><h2>Exploratory Data Analysis</h2></div>
+        </div>
+        <div class="charts-grid" id="chartsContainer"></div>
+      </div>
+
+      <!-- AI Summary -->
+      <div class="result-card glass slide-up" id="summaryCard">
+        <div class="card-header">
+          <div class="card-title"><span class="ci">🧠</span><h2>AI-Generated Summary</h2></div>
+        </div>
+        <div class="summary-wrap" id="summaryContent"></div>
+      </div>
+
+      <!-- Q&A -->
+      <div class="result-card glass slide-up" id="qaCard">
+        <div class="card-header">
+          <div class="card-title"><span class="ci">💬</span><h2>Ask AI About Your Data</h2></div>
+        </div>
+        <div class="qa-input-row">
+          <input type="text" class="qa-input" id="questionInput" placeholder="e.g. What is the highest value in the dataset?" />
+          <button class="qa-send-btn" id="askBtn" title="Send">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="qa-history" id="qaHistory"></div>
+      </div>
+
+      <!-- New Analysis -->
+      <div class="new-wrap">
+        <button class="new-btn" id="newAnalysisBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          New Analysis
+        </button>
+      </div>
+
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Smart Report Analyzer &mdash; Built with ❤️ by <strong class="accent-name">Pratham</strong></p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
