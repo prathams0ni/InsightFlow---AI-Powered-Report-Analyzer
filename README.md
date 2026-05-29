@@ -15,6 +15,14 @@ An intelligent document analysis engine built with Flask and Hugging Face LLMs t
 
 ---
 
+<img width="1919" height="919" alt="image" src="https://github.com/user-attachments/assets/02504d6e-cbe6-4b2d-8e09-5d76b9d8d0a4" />
+
+<img width="1919" height="889" alt="image" src="https://github.com/user-attachments/assets/d571706f-50d3-42d3-a5f8-83fcf81e6d43" />
+
+<img width="1919" height="915" alt="image" src="https://github.com/user-attachments/assets/9f4f48b2-9e8f-4ae3-9b2d-5967fbc812d0" />
+
+---
+
 ## ✨ What is InsightFlow?
 
 InsightFlow is a full-stack AI web application that lets you upload business documents and instantly receive:
